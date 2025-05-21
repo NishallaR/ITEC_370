@@ -1,0 +1,23 @@
+# dependencies
+/backend/node_modules
+/frontend/node_modules
+/.pnp
+.pnp.js
+/node_modules
+node_modules/
+
+
+
+# testing
+/backend/coverage
+
+# production
+/frontend/build
+
+# misc
+/backend/.env
+/frontend/.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env

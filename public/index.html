@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduFlex Registration</title>
+</head>
+<body>
+  <h2>Register User</h2>
+  <form id="registerForm">
+    <input type="text" id="user_id" placeholder="User ID" required><br>
+    <input type="text" id="first_name" placeholder="First Name" required><br>
+    <input type="text" id="last_name" placeholder="Last Name" required><br>
+    <input type="email" id="email" placeholder="Email" required><br>
+    <select id="role" required>
+      <option value="">Select Role</option>
+      <option value="student">Student</option>
+      <option value="instructor">Teacher</option>
+    </select><br><br>
+    <button type="submit">Register</button>
+  </form>
+  <div id="response_1"></div>
+
+  <h2>Registered Users</h2>
+  <button id="loadUsers">Load Users</button>
+  <table border="1" id="userTable">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Select</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Available Courses</h2>
+  <button onclick="loadCourses()">Load Courses</button>
+  <table border="1" id="courseTable">
+    <thead>
+      <tr>
+        <th>Course ID</th>
+        <th>Title</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Course Registrations</h2>
+  <button onclick="loadRegistrations()">Load Registrations</button>
+  <table border="1" id="registrationTable">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Course ID</th>
+        <th>Course Title</th>
+        <th>Total Payment</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Payment Summary</h2>
+  <button onclick="loadPayments()">Load Payments</button>
+  <table border="1" id="paymentTable">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Total Payment</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Add Course Content</h2>
+  <form id="courseForm">
+    <input type="number" id="course_id" placeholder="Course ID" required><br>
+    <input type="text" id="title" placeholder="Course Title" required><br>
+    <h4>Lesson 1</h4>
+    <input type="text" id="lesson_id" placeholder="Lesson ID" required><br>
+    <input type="text" id="topic" placeholder="Topic" required><br>
+    <textarea id="content" placeholder="Lesson Content" required></textarea><br>
+    <input type="text" id="resource1" placeholder="Resource URL 1"><br>
+    <input type="text" id="resource2" placeholder="Resource URL 2"><br>
+    <button type="submit">Add Course</button>
+  </form>
+
+  <div id="response"></div>
+
+  <script>
+    let currentUser = null;
+
+    document.getElementById("registerForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const data = {
+        user_id: document.getElementById("user_id").value,
+        first_name: document.getElementById("first_name").value,
+        last_name: document.getElementById("last_name").value,
+        email: document.getElementById("email").value,
+        role: document.getElementById("role").value
+      };
+      try {
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(data)
+        });
+        const json = await response.json();
+        document.getElementById("response_1").innerText = json.message || "Success!";
+      } catch (err) {
+        document.getElementById("response_1").innerText = "Network error.";
+      }
+    });
+
+    document.getElementById("courseForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const courseData = {
+        course_id: parseInt(document.getElementById("course_id").value),
+        title: document.getElementById("title").value,
+        lessons: [
+          {
+            lesson_id: document.getElementById("lesson_id").value,
+            topic: document.getElementById("topic").value,
+            content: document.getElementById("content").value,
+            resources: [
+              document.getElementById("resource1").value,
+              document.getElementById("resource2").value
+            ].filter(Boolean)
+          }
+        ]
+      };
+      try {
+        const response = await fetch("/api/course-content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(courseData)
+        });
+        const json = await response.json();
+        document.getElementById("response").innerText = json.message || "Success!";
+      } catch (err) {
+        document.getElementById("response").innerText = "Failed to add course.";
+      }
+    });
+
+    document.getElementById("loadUsers").addEventListener("click", async function () {
+      const userTableBody = document.querySelector("#userTable tbody");
+      userTableBody.innerHTML = "";
+      try {
+        const response = await fetch("/api/users");
+        const json = await response.json();
+        if (json.status === "success") {
+          json.data.forEach(user => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${user.USER_ID}</td>
+              <td>${user.FIRST_NAME}</td>
+              <td>${user.LAST_NAME}</td>
+              <td>${user.EMAIL}</td>
+              <td>${user.ROLE}</td>
+              <td><button onclick='selectUser(${JSON.stringify(user)})'>Select</button></td>
+            `;
+            userTableBody.appendChild(row);
+          });
+        } else {
+          userTableBody.innerHTML = `<tr><td colspan="6">Failed to load users.</td></tr>`;
+        }
+      } catch (err) {
+        userTableBody.innerHTML = `<tr><td colspan="6">Error: ${err.message}</td></tr>`;
+      }
+    });
+
+    async function loadCourses() {
+      const courseTableBody = document.querySelector("#courseTable tbody");
+      courseTableBody.innerHTML = "";
+      try {
+        const response = await fetch("/api/courses");
+        const json = await response.json();
+        if (json.status === "success") {
+          json.data.forEach(course => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${course.course_id}</td>
+              <td>${course.title}</td>
+              <td><button onclick='enroll(${JSON.stringify(course)})'>Enroll</button></td>
+            `;
+            courseTableBody.appendChild(row);
+          });
+        } else {
+          courseTableBody.innerHTML = `<tr><td colspan="3">Failed to load courses.</td></tr>`;
+        }
+      } catch (err) {
+        courseTableBody.innerHTML = `<tr><td colspan="3">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    function selectUser(user) {
+      currentUser = user;
+      loadCourses();
+    }
+
+    function enroll(course) {
+      if (!currentUser) {
+        alert("Please select a user first.");
+        return;
+      }
+      fetch('/api/enroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: currentUser.USER_ID,
+          first_name: currentUser.FIRST_NAME,
+          last_name: currentUser.LAST_NAME,
+          course_id: course.course_id,
+          course_title: course.title,
+          total_payment: 900  // Dynamically calculated payment should replace this hardcoded value
+        })
+      })
+      .then(res => res.json())
+      .then(json => {
+        alert(json.message);
+      })
+      .catch(() => alert('Enrollment failed.'));
+    }
+
+    async function loadRegistrations() {
+      const tableBody = document.querySelector("#registrationTable tbody");
+      tableBody.innerHTML = "";
+      try {
+        const res = await fetch('/api/registrations');
+        const json = await res.json();
+        if (json.status === 'success') {
+          json.data.forEach(reg => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${reg.USER_ID}</td>
+              <td>${reg.COURSE_ID}</td>
+              <td>${reg.COURSE_TITLE}</td>
+              <td>
+                <input type="number" value="${reg.TOTAL_PAYMENT || ''}" id="pay_${reg.USER_ID}_${reg.COURSE_ID}">
+              </td>
+              <td>
+                <button onclick='updateReg("${reg.USER_ID}", "${reg.COURSE_ID}")'>Update</button>
+                <button onclick='deleteReg("${reg.USER_ID}", "${reg.COURSE_ID}")'>Delete</button>
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function updateReg(userId, courseId) {
+      const payment = parseFloat(document.getElementById(`pay_${userId}_${courseId}`).value);
+      if (isNaN(payment)) {
+        alert("Invalid payment amount.");
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/registrations', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, course_id: courseId, total_payment: payment })
+        });
+        const json = await res.json();
+        alert(json.message);
+        loadRegistrations();
+      } catch (err) {
+        alert('Failed to update.');
+      }
+    }
+
+    async function deleteReg(userId, courseId) {
+      if (!confirm("Are you sure?")) return;
+      try {
+        const res = await fetch('/api/registrations', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, course_id: courseId })
+        });
+        const json = await res.json();
+        alert(json.message);
+        loadRegistrations();
+      } catch (err) {
+        alert('Failed to delete.');
+      }
+    }
+
+    async function loadPayments() {
+      const tableBody = document.querySelector("#paymentTable tbody");
+      tableBody.innerHTML = "";
+      try {
+        const res = await fetch('/api/payments');
+        const json = await res.json();
+        if (json.status === 'success') {
+          json.data.forEach(p => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${p.USER_ID}</td><td>${p.TOTAL_PAYMENT}</td>`;
+            tableBody.appendChild(row);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

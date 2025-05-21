@@ -1,2 +1,2 @@
-WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY = C:\Users\nisha\OneDrive\Desktop\ITEC_370\Final_Project\eduflex-main\wallet)))
+WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY = /app/wallet)))
 SSL_SERVER_DN_MATCH = yes

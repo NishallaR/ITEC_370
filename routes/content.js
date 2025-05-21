@@ -2,7 +2,6 @@ import { Router } from 'express';
 const router = Router();
 import { getCourseContent, addCourseContent } from '../config/mongo.js'; // MongoDB for course content
 
-// Fetch all course content
 router.get('/courses', async (req, res) => {
   try {
     const courses = await getCourseContent();
@@ -14,7 +13,6 @@ router.get('/courses', async (req, res) => {
   }
 });
 
-// Fetch specific course content by courseId
 router.get('/course-content/:courseId', async (req, res) => {
   const courseId = parseInt(req.params.courseId);
   try {
@@ -26,7 +24,6 @@ router.get('/course-content/:courseId', async (req, res) => {
   }
 });
 
-// Add course content
 router.post('/course-content', async (req, res) => {
   try {
     await addCourseContent(req.body);

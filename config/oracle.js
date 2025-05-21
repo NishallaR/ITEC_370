@@ -2,12 +2,10 @@ import oracledb from 'oracledb';
 import 'dotenv/config';
 import path from 'path';
 
-// Set absolute TNS_ADMIN path if not already set (required for Render/production)
 if (!process.env.TNS_ADMIN) {
   process.env.TNS_ADMIN = path.resolve('/app/wallet'); // wallet is in project root
 }
 
-// Check for required env vars at runtime
 const requiredEnv = ['ORACLE_USER', 'ORACLE_PASSWORD', 'ORACLE_CONNECT_STRING', 'TNS_ADMIN'];
 for (const key of requiredEnv) {
   if (!process.env[key]) {
@@ -21,7 +19,6 @@ const dbConfig = {
   connectString: process.env.ORACLE_CONNECT_STRING,
 };
 
-// Utility to get DB connection safely
 async function getConnection() {
   try {
     return await oracledb.getConnection(dbConfig);
@@ -32,7 +29,6 @@ async function getConnection() {
 }
 
 
-// Insert user into the database
 export async function insertUser(user) {
   const conn = await getConnection();
   try {
@@ -53,7 +49,6 @@ export async function insertUser(user) {
   }
 }
 
-// Fetch all users
 export async function getAllUsers() {
   const conn = await getConnection();
   try {
@@ -68,7 +63,6 @@ export async function getAllUsers() {
   }
 }
 
-// Register a user for a course
 export async function registerCourse(data) {
   const conn = await getConnection();
   try {
@@ -91,7 +85,6 @@ export async function registerCourse(data) {
   }
 }
 
-// Fetch all course registrations
 export async function getAllRegistrations() {
   const conn = await getConnection();
   try {
@@ -106,7 +99,6 @@ export async function getAllRegistrations() {
   }
 }
 
-// Update a course registration's payment
 export async function updateRegistration(data) {
   const conn = await getConnection();
   try {
@@ -126,7 +118,6 @@ export async function updateRegistration(data) {
   }
 }
 
-// Delete a course registration
 export async function deleteRegistration(user_id, course_id) {
   const conn = await getConnection();
   try {

@@ -4,7 +4,6 @@ import { insertUser, getAllUsers } from '../config/oracle.js';
 import { registerCourse } from '../config/oracle.js'; // Assuming you have a function to register course for users
 import { getAllRegistrations, deleteRegistration, updateRegistration, getPayments } from '../config/oracle.js';
 
-// Register a user
 router.post('/register', async (req, res) => {
   try {
     await insertUser(req.body);
@@ -14,7 +13,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Get all users
 router.get('/users', async (req, res) => {
   try {
     const users = await getAllUsers();
@@ -24,10 +22,9 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// Enroll user into course (after registration)
 router.post('/enroll', async (req, res) => {
   try {
-    await registerCourse(req.body); // You might need to implement this in your Oracle DB functions
+    await registerCourse(req.body); 
     res.json({ status: 'success', message: 'Enrollment recorded' });
   } catch (err) {
     console.error(err);
@@ -46,7 +43,7 @@ router.get('/registrations', async (req, res) => {
 
 router.put('/registrations', async (req, res) => {
   try {
-    await updateRegistration(req.body); // expects user_id + course_id + fields to update
+    await updateRegistration(req.body); 
     res.json({ status: 'success', message: 'Registration updated' });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
@@ -65,7 +62,7 @@ router.delete('/registrations', async (req, res) => {
 
 router.get('/payments', async (req, res) => {
   try {
-    const payments = await getPayments(); // grouped by user_id
+    const payments = await getPayments(); 
     res.json({ status: 'success', data: payments });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });

@@ -1,4 +1,3 @@
-// 1. Install dependencies: npm install express dotenv cors
 import express, { json }  from 'express';
 import 'dotenv/config';
 import userRoutes from './routes/user.js';

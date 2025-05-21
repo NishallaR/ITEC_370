@@ -8,7 +8,7 @@ let db;
 async function connectDB() {
   if (!db) {
     await client.connect();
-    db = client.db(dbName); // Initialize the db instance once
+    db = client.db(dbName); 
     console.log('MongoDB connected');
   }
   return db;
@@ -18,11 +18,10 @@ async function getCourseContent(courseId) {
   const db = await connectDB();
   const collection = db.collection('course_content');
 
-  // If courseId is passed, filter by course_id, otherwise return all courses
   if (courseId) {
     return await collection.find({ course_id: courseId }).toArray();
   } else {
-    return await collection.find().toArray(); // If no courseId, return all courses
+    return await collection.find().toArray(); 
   }
 }
 
